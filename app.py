@@ -1,94 +1,85 @@
+"""Aplicação para geração de contratos e envio por e-mail."""
+
 import os
 import re
-import zipfile
-from io import BytesIO
 from email.message import EmailMessage
+from io import BytesIO
 import smtplib
 from flask import Flask, render_template, request
+from docx import Document
 
-TEMPLATE_PATH = 'Contrato Vitorino.docx'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_PATH = os.path.join(BASE_DIR, "Contrato Vitorino.docx")
 
 FORM_FIELDS = {
-    'Comprador': 'Comprador',
-    'CPF': 'CPF',
-    'RG': 'RG',
-    'Emissor': 'Emissor',
-    'EstadoCivil': 'EstadoCivil',
-    'Profissao': 'Profissao',
-    'Endereco': 'Endereço',
-    'Numero': 'Numero',
-    'Complemento': 'Complemento',
-    'Bairro': 'Bairro',
-    'Cidade': 'Cidade',
-    'CEP': 'CEP',
-    'Quadra': 'Quadra',
-    'Lote': 'Lote',
-    'Testemunha': 'Testemunha',
-    'CPFTest': 'CPF Test',
-    'Testemunha2': 'Testemunha2',
-    'CPFTest2': 'CPF Test2'
+    "Comprador": "Comprador",
+    "CPF": "CPF",
+    "RG": "RG",
+    "Emissor": "Emissor",
+    "EstadoCivil": "EstadoCivil",
+    "Profissao": "Profissão",
+    "Endereco": "Endereço",
+    "Numero": "Número",
+    "Complemento": "Complemento",
+    "Bairro": "Bairro",
+    "Cidade": "Cidade",
+    "CEP": "CEP",
+    "Quadra": "Quadra",
+    "Lote": "Lote",
+    "Testemunha": "Testemunha",
+    "CPFTest": "CPF Test",
+    "Testemunha2": "Testemunha2",
+    "CPFTest2": "CPF Test2",
 }
 
 app = Flask(__name__)
 
-from urllib.parse import parse_qs
-from email.message import EmailMessage
-import smtplib
-from wsgiref.simple_server import make_server
-
-TEMPLATE_PATH = 'Contrato Vitorino.docx'
-
-FORM_HTML = """<!DOCTYPE html>
-<html>
-<head><meta charset='utf-8'><title>Gerar Contrato</title></head>
-<body>
-<h1>Gerar Contrato</h1>
-<form method='POST' action='/generate'>
-<p>Nome completo: <input name='Comprador' required></p>
-<p>CPF: <input name='CPF' required></p>
-<p>RG: <input name='RG' required></p>
-<p>Órgão emissor: <input name='Emissor' required></p>
-<p>Estado civil: <input name='EstadoCivil' required></p>
-<p>Profissão: <input name='Profissao' required></p>
-<p>Endereço: <input name='Endereço' required></p>
-<p>Número: <input name='Numero' required></p>
-<p>Complemento: <input name='Complemento'></p>
-<p>Bairro: <input name='Bairro' required></p>
-<p>Cidade: <input name='Cidade' required></p>
-<p>CEP: <input name='CEP' required></p>
-<p>Quadra: <input name='Quadra' required></p>
-<p>Lote: <input name='Lote' required></p>
-<p>Testemunha 1 nome: <input name='Testemunha' required></p>
-<p>Testemunha 1 CPF: <input name='CPF Test' required></p>
-<p>Testemunha 2 nome: <input name='Testemunha2' required></p>
-<p>Testemunha 2 CPF: <input name='CPF Test2' required></p>
-<p><button type='submit'>Gerar Contrato</button></p>
-</form>
-</body>
-</html>"""
-
-SUCCESS_HTML = """<!DOCTYPE html><html><body><h2>Contrato enviado com sucesso!</h2></body></html>"""
-FAIL_HTML = """<!DOCTYPE html><html><body><h2>Falha ao enviar contrato.</h2></body></html>"""
-
-PLACEHOLDERS = [
-    'Comprador','CPF','RG','Emissor','EstadoCivil','Profissao',
-    'Endereço','Numero','Complemento','Bairro','Cidade','CEP',
-    'Quadra','Lote','Testemunha','CPF Test','Testemunha2','CPF Test2'
-]
+def _replace_in_paragraph(paragraph, replacements):
+    text = ''.join(run.text for run in paragraph.runs)
+    for key, val in replacements.items():
+        placeholder = f'[{key}]'
+        while placeholder in text:
+            start = text.index(placeholder)
+            end = start + len(placeholder)
+            count = 0
+            start_idx = end_idx = None
+            start_off = end_off = 0
+            for i, run in enumerate(paragraph.runs):
+                run_len = len(run.text)
+                if start_idx is None and start < count + run_len:
+                    start_idx = i
+                    start_off = start - count
+                if end <= count + run_len:
+                    end_idx = i
+                    end_off = end - count
+                    break
+                count += run_len
+            if start_idx is None or end_idx is None:
+                break
+            first_run = paragraph.runs[start_idx]
+            last_run = paragraph.runs[end_idx]
+            prefix = first_run.text[:start_off]
+            suffix = last_run.text[end_off:]
+            first_run.text = prefix + val + suffix
+            for j in range(end_idx, start_idx, -1):
+                paragraph._p.remove(paragraph.runs[j]._r)
+            text = ''.join(run.text for run in paragraph.runs)
 
 def replace_placeholders(replacements):
-    with zipfile.ZipFile(TEMPLATE_PATH) as z:
-        xml = z.read('word/document.xml').decode('utf-8')
-        others = {n: z.read(n) for n in z.namelist() if n != 'word/document.xml'}
-    for key, val in replacements.items():
-        pattern = re.compile(r'<w:t>\[</w:t>.*?<w:t>' + re.escape(key) + r'</w:t>.*?<w:t>\]</w:t>', re.DOTALL)
-        xml = pattern.sub('<w:t>' + val + '</w:t>', xml)
-        xml = xml.replace('[' + key + ']', val)
+    """Gera um novo DOCX substituindo marcadores do template de forma segura."""
+    doc = Document(TEMPLATE_PATH)
+
+    for paragraph in doc.paragraphs:
+        _replace_in_paragraph(paragraph, replacements)
+
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    _replace_in_paragraph(paragraph, replacements)
+
     bio = BytesIO()
-    with zipfile.ZipFile(bio, 'w') as out:
-        out.writestr('word/document.xml', xml)
-        for n, d in others.items():
-            out.writestr(n, d)
+    doc.save(bio)
     bio.seek(0)
     return bio.read()
 
@@ -130,34 +121,6 @@ def form():
     return render_template('form.html', status=status)
 
 
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', '8000'))
-    app.run(host='0.0.0.0', port=port)
-def app(environ, start_response):
-    path = environ.get('PATH_INFO', '/')
-    method = environ.get('REQUEST_METHOD')
-    if path == '/' and method == 'GET':
-        start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-        return [FORM_HTML.encode('utf-8')]
-    if path == '/generate' and method == 'POST':
-        size = int(environ.get('CONTENT_LENGTH', 0))
-        data = environ['wsgi.input'].read(size).decode('utf-8')
-        params = {k: v[0] for k, v in parse_qs(data).items()}
-        replacements = {k: params.get(k, '') for k in PLACEHOLDERS}
-        try:
-            doc = replace_placeholders(replacements)
-            send_email(doc)
-            start_response('200 OK', [('Content-Type', 'text/html; charset=utf-8')])
-            return [SUCCESS_HTML.encode('utf-8')]
-        except Exception as e:
-            print('Erro:', e)
-            start_response('500 Internal Server Error', [('Content-Type', 'text/html; charset=utf-8')])
-            return [FAIL_HTML.encode('utf-8')]
-    start_response('404 Not Found', [('Content-Type', 'text/plain')])
-    return [b'Not found']
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', '8000'))
-    with make_server('', port, app) as srv:
-        print(f'Servidor iniciado na porta {port}...')
-        srv.serve_forever()
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", "8000"))
+    app.run(host="0.0.0.0", port=port)
