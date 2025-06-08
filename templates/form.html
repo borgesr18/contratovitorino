@@ -143,20 +143,6 @@
             <input id="Complemento" name="Complemento" type="text" required>
         </div>
         <button type="submit">Gerar contrato</button>
-    </form>
-</main>
-{% if status %}
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    var toast = document.getElementById('toast');
-    if (toast) {
-      toast.classList.add('show');
-      setTimeout(function() {
-        toast.classList.remove('show');
-      }, 3000);
-    }
-  });
-</script>
-{% endif %}
+
 </body>
 </html>

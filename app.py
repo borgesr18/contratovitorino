@@ -77,38 +77,35 @@ def replace_placeholders(replacements):
                 for paragraph in cell.paragraphs:
                     _replace_in_paragraph(paragraph, replacements)
 
-    bio = BytesIO()
-    doc.save(bio)
     bio.seek(0)
     return bio.read()
 
 def send_email(doc_bytes):
-    user = os.environ.get('EMAIL_USER')
-    password = os.environ.get('EMAIL_PASS')
-    dest = os.environ.get('EMAIL_DEST', 'rba1807@gmail.com')
+    user = os.environ.get("EMAIL_USER")
+    password = os.environ.get("EMAIL_PASS")
+    dest = os.environ.get("EMAIL_DEST", "rba1807@gmail.com")
     if not user or not password:
-        raise RuntimeError('Credenciais de e-mail não definidas')
+        raise RuntimeError("Credenciais de e-mail não definidas")
     msg = EmailMessage()
-    msg['Subject'] = 'Contrato Gerado'
-    msg['From'] = user
-    msg['To'] = dest
-    msg.set_content('Segue contrato em anexo.')
+    msg["Subject"] = "Contrato Gerado"
+    msg["From"] = user
+    msg["To"] = dest
+    msg.set_content("Segue contrato em anexo.")
     msg.add_attachment(
         doc_bytes,
-        maintype='application',
-        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
-        filename='contrato.docx'
+        maintype="application",
+        subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename="contrato.docx",
     )
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)
 
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def form():
     status = None
-    if request.method == 'POST':
-        data = {f: request.form.get(f, '') for f in FORM_FIELDS.keys()}
+    if request.method == "POST":
+        data = {f: request.form.get(f, "") for f in FORM_FIELDS.keys()}
         replacements = {placeholder: data[field] for field, placeholder in FORM_FIELDS.items()}
         try:
             doc = replace_placeholders(replacements)
@@ -119,6 +116,11 @@ def form():
             status = 'Falha ao enviar contrato.'
     return render_template('form.html', status=status)
 
+            status = "Contrato enviado com sucesso!"
+        except Exception as exc:
+            print("Erro:", exc)
+            status = "Falha ao enviar contrato."
+    return render_template("form.html", status=status)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
