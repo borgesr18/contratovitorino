@@ -3,137 +3,160 @@
 <head>
     <meta charset="utf-8">
     <title>Gerador de Contratos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f2f2f2;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+        :root {
+            --radius: 10px;
+            --color-bg: #f3f4f6;
+            --color-surface: #fff;
+            --color-primary: #2563eb;
+            --color-primary-hover: #1e54c4;
         }
-        .container {
-            background: #fff;
-            margin: 40px 0;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-        label {
-            margin-top: 12px;
-            display: block;
-            font-weight: bold;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            margin-top: 4px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+        * {
             box-sizing: border-box;
         }
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background: #007bff;
-            border: none;
-            border-radius: 4px;
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--color-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
         }
-        button:hover {
-            background: #0056b3;
+        .card {
+            width: 100%;
+            max-width: 500px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 32px;
+        }
+        h1 {
+            margin: 0 0 24px;
+            font-size: 26px;
+            font-weight: 600;
+            text-align: center;
+            color: #333;
+        }
+        .field {
+            margin-bottom: 16px;
+        }
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+        }
+        .field input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: var(--radius);
+            font-size: 14px;
         }
         .status {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: var(--radius);
+            background: #ecfdf5;
+            color: #065f46;
             text-align: center;
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            background: #e7f3fe;
-            color: #31708f;
         }
-        @media (max-width: 600px) {
-            .container {
-                margin: 20px;
-                padding: 15px 20px;
-            }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            color: #fff;
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        button:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-2px);
+        }
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ecfdf5;
+            color: #065f46;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.4s, transform 0.4s;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
-<div class="container">
+{% if status %}<div id="toast" class="toast">{{ status }}</div>{% endif %}
+<main class="card">
     <h1>Gerador de Contratos</h1>
-    {% if status %}<p class="status">{{ status }}</p>{% endif %}
+    {% if status %}<div class="status">{{ status }}</div>{% endif %}
     <form method="post" action="/">
-        <label>Nome completo
-            <input type="text" name="Comprador" required>
-        </label>
-        <label>CPF
-            <input type="text" name="CPF" required>
-        </label>
-        <label>RG
-            <input type="text" name="RG" required>
-        </label>
-        <label>Órgão emissor
-            <input type="text" name="Emissor" required>
-        </label>
-        <label>Estado civil
-            <input type="text" name="EstadoCivil" required>
-        </label>
-        <label>Profissão
-            <input type="text" name="Profissao" required>
-        </label>
-        <label>Endereço
-            <input type="text" name="Endereco" required>
-        </label>
-        <label>Número
-            <input type="text" name="Numero" required>
-        </label>
-        <label>Complemento
-            <input type="text" name="Complemento" required>
-        </label>
-        <label>Bairro
-            <input type="text" name="Bairro" required>
-        </label>
-        <label>Cidade
-            <input type="text" name="Cidade" required>
-        </label>
-        <label>CEP
-            <input type="text" name="CEP" required>
-        </label>
-        <label>Quadra
-            <input type="text" name="Quadra" required>
-        </label>
-        <label>Lote
-            <input type="text" name="Lote" required>
-        </label>
-        <label>Testemunha 1
-            <input type="text" name="Testemunha" required>
-        </label>
-        <label>CPF Testemunha 1
-            <input type="text" name="CPFTest" required>
-        </label>
-        <label>Testemunha 2
-            <input type="text" name="Testemunha2" required>
-        </label>
-        <label>CPF Testemunha 2
-            <input type="text" name="CPFTest2" required>
-        </label>
-        <button type="submit">Gerar Contrato</button>
+        <div class="field">
+            <label for="Comprador">Nome completo</label>
+            <input id="Comprador" name="Comprador" type="text" required>
+        </div>
+        <div class="field">
+            <label for="CPF">CPF</label>
+            <input id="CPF" name="CPF" type="text" required>
+        </div>
+        <div class="field">
+            <label for="RG">RG</label>
+            <input id="RG" name="RG" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Emissor">Órgão emissor</label>
+            <input id="Emissor" name="Emissor" type="text" required>
+        </div>
+        <div class="field">
+            <label for="EstadoCivil">Estado civil</label>
+            <input id="EstadoCivil" name="EstadoCivil" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Profissao">Profissão</label>
+            <input id="Profissao" name="Profissao" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Endereco">Endereço</label>
+            <input id="Endereco" name="Endereco" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Numero">Número</label>
+            <input id="Numero" name="Numero" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Complemento">Complemento</label>
+            <input id="Complemento" name="Complemento" type="text" required>
+        </div>
+        <button type="submit">Gerar contrato</button>
     </form>
-</div>
+</main>
+{% if status %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var toast = document.getElementById('toast');
+    if (toast) {
+      toast.classList.add('show');
+      setTimeout(function() {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  });
+</script>
+{% endif %}
 </body>
 </html>
