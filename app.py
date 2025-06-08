@@ -1,5 +1,3 @@
-"""Aplicação para geração de contratos e envio por e-mail."""
-
 import os
 import re
 import zipfile
@@ -33,30 +31,30 @@ FORM_FIELDS = {
 
 app = Flask(__name__)
 
+def xml_safe(val):
+    """Escapa caracteres especiais para XML"""
+    return (
+        (val or "")
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+        .replace("'", "&apos;")
+    )
+
 def replace_placeholders(replacements):
-    """Substitui marcadores no template Word preservando a estrutura do XML."""
     with zipfile.ZipFile(TEMPLATE_PATH) as z:
         xml = z.read("word/document.xml").decode("utf-8")
         others = {n: z.read(n) for n in z.namelist() if n != "word/document.xml"}
 
-    # Colapsa marcadores que foram quebrados em várias tags
-    def collapse(match: re.Match) -> str:
-        inner = re.sub(r"<[^>]+>", "", match.group(0))[1:-1]
-        return "[" + inner + "]"
+    # Junta fragmentos quebrados de texto
+    xml = re.sub(r"</w:t>\s*</w:r>\s*<w:r[^>]*>(<w:rPr>.*?</w:rPr>)?<w:t[^>]*>", "", xml)
+    xml = re.sub(r"</w:t>\s*<w:t[^>]*>", "", xml)
 
-    xml = re.sub(r"\[.*?\]", collapse, xml, flags=re.DOTALL)
-
+    # Substituição segura
     for key, val in replacements.items():
-        xml = xml.replace("[" + key + "]", val)
+        xml = xml.replace(f"[{key}]", xml_safe(val))
 
-    with zipfile.ZipFile(TEMPLATE_PATH) as z:
-        xml = z.read('word/document.xml').decode('utf-8')
-        others = {n: z.read(n) for n in z.namelist() if n != 'word/document.xml'}
-    # Merge adjacent text nodes so placeholders are contiguous
-    xml = re.sub(r'</w:t>\s*</w:r>\s*<w:r[^>]*>(?:<w:rPr>.*?</w:rPr>)?<w:t[^>]*>', '', xml)
-    xml = re.sub(r'</w:t>\s*<w:t[^>]*>', '', xml)
-    for key, val in replacements.items():
-        xml = xml.replace('[' + key + ']', val)
     bio = BytesIO()
     with zipfile.ZipFile(bio, "w") as out:
         out.writestr("word/document.xml", xml)
@@ -66,43 +64,42 @@ def replace_placeholders(replacements):
     return bio.read()
 
 def send_email(doc_bytes):
-    user = os.environ.get('EMAIL_USER')
-    password = os.environ.get('EMAIL_PASS')
-    dest = os.environ.get('EMAIL_DEST', 'rba1807@gmail.com')
+    user = os.environ.get("EMAIL_USER")
+    password = os.environ.get("EMAIL_PASS")
+    dest = os.environ.get("EMAIL_DEST", "rba1807@gmail.com")
     if not user or not password:
-        raise RuntimeError('Credenciais de e-mail não definidas')
+        raise RuntimeError("Credenciais de e-mail não definidas")
     msg = EmailMessage()
-    msg['Subject'] = 'Contrato Gerado'
-    msg['From'] = user
-    msg['To'] = dest
-    msg.set_content('Segue contrato em anexo.')
+    msg["Subject"] = "Contrato Gerado"
+    msg["From"] = user
+    msg["To"] = dest
+    msg.set_content("Segue contrato em anexo.")
     msg.add_attachment(
         doc_bytes,
-        maintype='application',
-        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
-        filename='contrato.docx'
+        maintype="application",
+        subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename="contrato.docx",
     )
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)
 
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def form():
     status = None
-    if request.method == 'POST':
-        data = {f: request.form.get(f, '') for f in FORM_FIELDS.keys()}
+    if request.method == "POST":
+        data = {f: request.form.get(f, "") for f in FORM_FIELDS.keys()}
         replacements = {placeholder: data[field] for field, placeholder in FORM_FIELDS.items()}
         try:
             doc = replace_placeholders(replacements)
             send_email(doc)
-            status = 'Contrato enviado com sucesso!'
-        except Exception as exc:  # pragma: no cover - best effort
-            print('Erro:', exc)
-            status = 'Falha ao enviar contrato.'
-    return render_template('form.html', status=status)
-
+            status = "Contrato enviado com sucesso!"
+        except Exception as exc:
+            print("Erro:", exc)
+            status = "Falha ao enviar contrato."
+    return render_template("form.html", status=status)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
     app.run(host="0.0.0.0", port=port)
+
