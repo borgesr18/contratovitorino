@@ -2,6 +2,35 @@ import os
 import re
 import zipfile
 from io import BytesIO
+from email.message import EmailMessage
+import smtplib
+from flask import Flask, render_template, request
+
+TEMPLATE_PATH = 'Contrato Vitorino.docx'
+
+FORM_FIELDS = {
+    'Comprador': 'Comprador',
+    'CPF': 'CPF',
+    'RG': 'RG',
+    'Emissor': 'Emissor',
+    'EstadoCivil': 'EstadoCivil',
+    'Profissao': 'Profissao',
+    'Endereco': 'Endereço',
+    'Numero': 'Numero',
+    'Complemento': 'Complemento',
+    'Bairro': 'Bairro',
+    'Cidade': 'Cidade',
+    'CEP': 'CEP',
+    'Quadra': 'Quadra',
+    'Lote': 'Lote',
+    'Testemunha': 'Testemunha',
+    'CPFTest': 'CPF Test',
+    'Testemunha2': 'Testemunha2',
+    'CPFTest2': 'CPF Test2'
+}
+
+app = Flask(__name__)
+
 from urllib.parse import parse_qs
 from email.message import EmailMessage
 import smtplib
@@ -84,6 +113,26 @@ def send_email(doc_bytes):
         smtp.login(user, password)
         smtp.send_message(msg)
 
+
+@app.route('/', methods=['GET', 'POST'])
+def form():
+    status = None
+    if request.method == 'POST':
+        data = {f: request.form.get(f, '') for f in FORM_FIELDS.keys()}
+        replacements = {placeholder: data[field] for field, placeholder in FORM_FIELDS.items()}
+        try:
+            doc = replace_placeholders(replacements)
+            send_email(doc)
+            status = 'Contrato enviado com sucesso!'
+        except Exception as exc:  # pragma: no cover - best effort
+            print('Erro:', exc)
+            status = 'Falha ao enviar contrato.'
+    return render_template('form.html', status=status)
+
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', '8000'))
+    app.run(host='0.0.0.0', port=port)
 def app(environ, start_response):
     path = environ.get('PATH_INFO', '/')
     method = environ.get('REQUEST_METHOD')
