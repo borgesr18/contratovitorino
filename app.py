@@ -82,6 +82,9 @@ def replace_placeholders(replacements):
 
     bio = BytesIO()
     doc.save(bio)
+
+    bio = BytesIO()
+    doc.save(bio)
 def xml_safe(val):
     """Escapa caracteres especiais para XML"""
     return (
@@ -144,6 +147,12 @@ def form():
         try:
             doc = replace_placeholders(replacements)
             send_email(doc)
+            status = 'Contrato enviado com sucesso!'
+        except Exception as exc:  # pragma: no cover - best effort
+            print('Erro:', exc)
+            status = 'Falha ao enviar contrato.'
+    return render_template('form.html', status=status)
+
             status = "Contrato enviado com sucesso!"
         except Exception as exc:
             print("Erro:", exc)
