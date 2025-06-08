@@ -1,1 +1,2 @@
 Flask>=2.3
+python-docx>=0.8
