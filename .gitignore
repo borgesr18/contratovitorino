@@ -1,0 +1,4 @@
+# Arquivos gerados
+output.docx
+__pycache__/
+.env
