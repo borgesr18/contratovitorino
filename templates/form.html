@@ -7,107 +7,125 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --radius: 10px;
+            --color-bg: #f3f4f6;
+            --color-surface: #fff;
+            --color-primary: #2563eb;
+            --color-primary-hover: #1e54c4;
+        }
         * {
             box-sizing: border-box;
         }
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
-            background: #f5f7fa;
+            background: var(--color-bg);
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 16px;
         }
-        .form-container {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-            max-width: 500px;
+        .card {
             width: 100%;
-            padding: 30px 40px;
+            max-width: 500px;
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 32px;
         }
         h1 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 24px;
+            margin: 0 0 24px;
+            font-size: 26px;
+            font-weight: 600;
             text-align: center;
             color: #333;
         }
-        label {
-            display: block;
-            margin-bottom: 12px;
-            font-weight: 600;
-            color: #444;
+        .field {
+            margin-bottom: 16px;
         }
-        input[type="text"] {
+        .field label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #555;
+        }
+        .field input {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid #ccc;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 14px;
         }
+        .status {
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: var(--radius);
+            background: #ecfdf5;
+            color: #065f46;
+            text-align: center;
+        }
         button {
-            margin-top: 20px;
             width: 100%;
             padding: 12px;
-            background: #3498db;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
             font-size: 16px;
+            color: #fff;
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius);
             cursor: pointer;
             transition: background 0.2s ease, transform 0.2s ease;
         }
         button:hover {
-            background: #2c82c9;
+            background: var(--color-primary-hover);
             transform: translateY(-2px);
-        }
-        .status {
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            background: #eaf7ff;
-            color: #1a78c2;
-            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-<div class="form-container">
+<main class="card">
     <h1>Gerador de Contratos</h1>
-    {% if status %}<p class="status">{{ status }}</p>{% endif %}
+    {% if status %}<div class="status">{{ status }}</div>{% endif %}
     <form method="post" action="/">
-        <label>Nome completo
-            <input type="text" name="Comprador" required>
-        </label>
-        <label>CPF
-            <input type="text" name="CPF" required>
-        </label>
-        <label>RG
-            <input type="text" name="RG" required>
-        </label>
-        <label>Órgão emissor
-            <input type="text" name="Emissor" required>
-        </label>
-        <label>Estado civil
-            <input type="text" name="EstadoCivil" required>
-        </label>
-        <label>Profissão
-            <input type="text" name="Profissao" required>
-        </label>
-        <label>Endereço
-            <input type="text" name="Endereco" required>
-        </label>
-        <label>Número
-            <input type="text" name="Numero" required>
-        </label>
-        <label>Complemento
-            <input type="text" name="Complemento" required>
-        </label>
+        <div class="field">
+            <label for="Comprador">Nome completo</label>
+            <input id="Comprador" name="Comprador" type="text" required>
+        </div>
+        <div class="field">
+            <label for="CPF">CPF</label>
+            <input id="CPF" name="CPF" type="text" required>
+        </div>
+        <div class="field">
+            <label for="RG">RG</label>
+            <input id="RG" name="RG" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Emissor">Órgão emissor</label>
+            <input id="Emissor" name="Emissor" type="text" required>
+        </div>
+        <div class="field">
+            <label for="EstadoCivil">Estado civil</label>
+            <input id="EstadoCivil" name="EstadoCivil" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Profissao">Profissão</label>
+            <input id="Profissao" name="Profissao" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Endereco">Endereço</label>
+            <input id="Endereco" name="Endereco" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Numero">Número</label>
+            <input id="Numero" name="Numero" type="text" required>
+        </div>
+        <div class="field">
+            <label for="Complemento">Complemento</label>
+            <input id="Complemento" name="Complemento" type="text" required>
+        </div>
         <button type="submit">Gerar contrato</button>
-  <meta charset="UTF-8">
+</main>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gerador de Contratos</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
