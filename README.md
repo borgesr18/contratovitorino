@@ -8,10 +8,13 @@ Este projeto cria um pequeno servidor em Python para gerar contratos a partir do
    - `EMAIL_USER` – usuário da conta (ex: gmail).
    - `EMAIL_PASS` – senha ou app password.
    - `EMAIL_DEST` – e-mail que receberá o contrato (opcional, padrão `rba1807@gmail.com`).
-2. Execute o servidor:
+2. Instale o Flask (requer Python >=3.7):
+   ```bash
+   pip install Flask
+   ```
+3. Execute o servidor:
    ```bash
    python app.py
    ```
-3. Acesse `http://localhost:8000` e preencha o formulário. O contrato é gerado e enviado por e-mail como anexo.
+4. Acesse `http://localhost:8000` e preencha o formulário. O contrato é gerado e enviado por e-mail como anexo.
 
-O servidor utiliza apenas bibliotecas padrão do Python, então não é necessário instalar dependências adicionais.
