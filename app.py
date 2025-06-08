@@ -49,6 +49,14 @@ def replace_placeholders(replacements):
     for key, val in replacements.items():
         xml = xml.replace("[" + key + "]", val)
 
+    with zipfile.ZipFile(TEMPLATE_PATH) as z:
+        xml = z.read('word/document.xml').decode('utf-8')
+        others = {n: z.read(n) for n in z.namelist() if n != 'word/document.xml'}
+    # Merge adjacent text nodes so placeholders are contiguous
+    xml = re.sub(r'</w:t>\s*</w:r>\s*<w:r[^>]*>(?:<w:rPr>.*?</w:rPr>)?<w:t[^>]*>', '', xml)
+    xml = re.sub(r'</w:t>\s*<w:t[^>]*>', '', xml)
+    for key, val in replacements.items():
+        xml = xml.replace('[' + key + ']', val)
     bio = BytesIO()
     with zipfile.ZipFile(bio, "w") as out:
         out.writestr("word/document.xml", xml)
