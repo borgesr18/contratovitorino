@@ -34,6 +34,21 @@ FORM_FIELDS = {
 app = Flask(__name__)
 
 def replace_placeholders(replacements):
+    """Substitui marcadores no template Word preservando a estrutura do XML."""
+    with zipfile.ZipFile(TEMPLATE_PATH) as z:
+        xml = z.read("word/document.xml").decode("utf-8")
+        others = {n: z.read(n) for n in z.namelist() if n != "word/document.xml"}
+
+    # Colapsa marcadores que foram quebrados em várias tags
+    def collapse(match: re.Match) -> str:
+        inner = re.sub(r"<[^>]+>", "", match.group(0))[1:-1]
+        return "[" + inner + "]"
+
+    xml = re.sub(r"\[.*?\]", collapse, xml, flags=re.DOTALL)
+
+    for key, val in replacements.items():
+        xml = xml.replace("[" + key + "]", val)
+
     with zipfile.ZipFile(TEMPLATE_PATH) as z:
         xml = z.read('word/document.xml').decode('utf-8')
         others = {n: z.read(n) for n in z.namelist() if n != 'word/document.xml'}
@@ -43,8 +58,8 @@ def replace_placeholders(replacements):
     for key, val in replacements.items():
         xml = xml.replace('[' + key + ']', val)
     bio = BytesIO()
-    with zipfile.ZipFile(bio, 'w') as out:
-        out.writestr('word/document.xml', xml)
+    with zipfile.ZipFile(bio, "w") as out:
+        out.writestr("word/document.xml", xml)
         for n, d in others.items():
             out.writestr(n, d)
     bio.seek(0)
