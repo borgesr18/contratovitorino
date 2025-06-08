@@ -158,5 +158,122 @@
   });
 </script>
 {% endif %}
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contrato - Recanto do Vitorino</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1.75rem;
+      color: #111827;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.25rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background-color: #f9fafb;
+      font-size: 1rem;
+      transition: border 0.2s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #6366f1;
+      background-color: #fff;
+    }
+
+    .submit-btn {
+      background-color: #4F46E5;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      width: 100%;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background-color: #4338CA;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Gerador de Contratos</h1>
+    <form method="post">
+      <label>Nome completo</label>
+      <input type="text" name="Comprador" />
+      <label>CPF</label>
+      <input type="text" name="CPF" />
+      <label>RG</label>
+      <input type="text" name="RG" />
+      <label>Órgão emissor</label>
+      <input type="text" name="Emissor" />
+      <label>Estado civil</label>
+      <input type="text" name="EstadoCivil" />
+      <label>Profissão</label>
+      <input type="text" name="Profissao" />
+      <label>Endereço</label>
+      <input type="text" name="Endereco" />
+      <label>Número</label>
+      <input type="text" name="Numero" />
+      <label>Complemento</label>
+      <input type="text" name="Complemento" />
+      <label>Bairro</label>
+      <input type="text" name="Bairro" />
+      <label>Cidade</label>
+      <input type="text" name="Cidade" />
+      <label>CEP</label>
+      <input type="text" name="CEP" />
+      <label>Quadra</label>
+      <input type="text" name="Quadra" />
+      <label>Lote</label>
+      <input type="text" name="Lote" />
+      <label>Testemunha</label>
+      <input type="text" name="Testemunha" />
+      <label>CPF da Testemunha</label>
+      <input type="text" name="CPFTest" />
+      <label>Testemunha 2</label>
+      <input type="text" name="Testemunha2" />
+      <label>CPF da Testemunha 2</label>
+      <input type="text" name="CPFTest2" />
+      <button type="submit" class="submit-btn">Gerar contrato</button>
+    </form>
+  </div>
 </body>
 </html>
