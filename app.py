@@ -8,7 +8,8 @@ from io import BytesIO
 import smtplib
 from flask import Flask, render_template, request
 
-TEMPLATE_PATH = "Contrato Vitorino.docx"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATE_PATH = os.path.join(BASE_DIR, "Contrato Vitorino.docx")
 
 FORM_FIELDS = {
     "Comprador": "Comprador",
