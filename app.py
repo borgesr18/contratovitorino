@@ -5,16 +5,16 @@ from email.message import EmailMessage
 from io import BytesIO
 import smtplib
 
-try:  # Import Flask with a helpful error if missing
+try:
     from flask import Flask, render_template, request
-except ImportError as exc:  # pragma: no cover - guidance for users
+except ImportError as exc:
     raise RuntimeError(
         "Flask não está instalado. Rode 'pip install -r requirements.txt'"
     ) from exc
 
-try:  # Import python-docx with a helpful error if missing
+try:
     from docx import Document
-except ImportError as exc:  # pragma: no cover - guidance for users
+except ImportError as exc:
     raise RuntimeError(
         "python-docx não está instalado. Rode 'pip install -r requirements.txt'"
     ) from exc
@@ -46,11 +46,10 @@ FORM_FIELDS = {
 app = Flask(__name__)
 
 def _replace_in_paragraph(paragraph, replacements):
-    """Replace placeholders in a single paragraph preserving formatting."""
+    """Substitui placeholders em um parágrafo preservando a formatação."""
     if not paragraph.runs:
         return
 
-    # Join all text to detect placeholders across multiple runs
     full_text = ''.join(run.text for run in paragraph.runs)
     replaced = False
     for key, val in replacements.items():
@@ -60,26 +59,18 @@ def _replace_in_paragraph(paragraph, replacements):
             replaced = True
 
     if replaced:
-        # Write merged text back keeping the formatting of the first run
         paragraph.runs[0].text = full_text
         for run in paragraph.runs[1:]:
             run.text = ''
-    else:
-        # Fallback: simple in-run replacement
-        for run in paragraph.runs:
-            for key, val in replacements.items():
-                placeholder = f'[{key}]'
-                if placeholder in run.text:
-                    run.text = run.text.replace(placeholder, val)
 
 def _process_table(table, replacements):
+    """Percorre todas as células da tabela e substitui os placeholders."""
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
                 _replace_in_paragraph(paragraph, replacements)
             for nested in cell.tables:
                 _process_table(nested, replacements)
-
 
 def replace_placeholders(replacements):
     """Gera um novo DOCX substituindo marcadores do template de forma segura."""
@@ -100,39 +91,41 @@ def send_email(doc_bytes, nome_comprador):
     user = os.environ.get('EMAIL_USER')
     password = os.environ.get('EMAIL_PASS')
     dest = os.environ.get('EMAIL_DEST', 'rba1807@gmail.com')
+    
     if not user or not password:
-        raise RuntimeError('Credenciais de e-mail não definidas')
+        raise RuntimeError("Credenciais de e-mail não definidas")
+
     msg = EmailMessage()
     msg['Subject'] = f'Contrato de {nome_comprador}'
     msg['From'] = user
     msg['To'] = dest
     msg.set_content('Segue contrato em anexo.')
+
     msg.add_attachment(
         doc_bytes,
-        maintype='application',
-        subtype='vnd.openxmlformats-officedocument.wordprocessingml.document',
-        filename='contrato.docx'
+        maintype="application",
+        subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename="contrato.docx",
     )
-    with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)
 
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route("/", methods=["GET", "POST"])
 def form():
     status = None
-    if request.method == 'POST':
-        data = {f: request.form.get(f, '') for f in FORM_FIELDS.keys()}
+    if request.method == "POST":
+        data = {f: request.form.get(f, "") for f in FORM_FIELDS.keys()}
         replacements = {placeholder: data[field] for field, placeholder in FORM_FIELDS.items()}
         try:
             doc = replace_placeholders(replacements)
             send_email(doc, data.get('Comprador', ''))
             status = 'Contrato enviado com sucesso!'
-        except Exception as exc:  # pragma: no cover - best effort
+        except Exception as exc:
             print('Erro:', exc)
             status = 'Falha ao enviar contrato.'
     return render_template('form.html', status=status)
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
