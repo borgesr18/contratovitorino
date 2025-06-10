@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>Gerador de Contratos</title>
+  <title>Gerador de Contratos - Recando do Vitorino</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -104,28 +104,28 @@
 <body>
   {% if status %}<div id="toast" class="toast">{{ status }}</div>{% endif %}
   <main class="card">
-    <h1>Gerador de Contratos</h1>
+    <h1>Gerador de Contratos - Recanto do Vitorino</h1>
     {% if status %}<div class="status">{{ status }}</div>{% endif %}
     <form method="post" action="/">
-      <div class="field"><label for="Comprador">Nome completo</label><input id="Comprador" name="Comprador" type="text" required></div>
-      <div class="field"><label for="CPF">CPF</label><input id="CPF" name="CPF" type="text" required></div>
-      <div class="field"><label for="RG">RG</label><input id="RG" name="RG" type="text" required></div>
-      <div class="field"><label for="Emissor">Órgão emissor</label><input id="Emissor" name="Emissor" type="text" required></div>
-      <div class="field"><label for="EstadoCivil">Estado civil</label><input id="EstadoCivil" name="EstadoCivil" type="text" required></div>
-      <div class="field"><label for="Profissao">Profissão</label><input id="Profissao" name="Profissao" type="text" required></div>
-      <div class="field"><label for="Endereco">Endereço</label><input id="Endereco" name="Endereco" type="text" required></div>
-      <div class="field"><label for="Numero">Número</label><input id="Numero" name="Numero" type="text" required></div>
-      <div class="field"><label for="Complemento">Complemento</label><input id="Complemento" name="Complemento" type="text"></div>
-      <div class="field"><label for="Bairro">Bairro</label><input id="Bairro" name="Bairro" type="text" required></div>
-      <div class="field"><label for="Cidade">Cidade</label><input id="Cidade" name="Cidade" type="text" required></div>
-      <div class="field"><label for="CEP">CEP</label><input id="CEP" name="CEP" type="text" required></div>
-      <div class="field"><label for="Quadra">Quadra</label><input id="Quadra" name="Quadra" type="text"></div>
-      <div class="field"><label for="Lote">Lote</label><input id="Lote" name="Lote" type="text"></div>
-      <div class="field"><label for="Testemunha">Testemunha 1</label><input id="Testemunha" name="Testemunha" type="text"></div>
-      <div class="field"><label for="CPFTest">CPF Testemunha 1</label><input id="CPFTest" name="CPFTest" type="text"></div>
-      <div class="field"><label for="Testemunha2">Testemunha 2</label><input id="Testemunha2" name="Testemunha2" type="text"></div>
-      <div class="field"><label for="CPFTest2">CPF Testemunha 2</label><input id="CPFTest2" name="CPFTest2" type="text"></div>
-      <button type="submit">Gerar contrato</button>
+      <div class="field"><label for="Comprador">Nome Completo:</label><input id="Comprador" name="Comprador" type="text" required></div>
+      <div class="field"><label for="CPF">CPF:</label><input id="CPF" name="CPF" type="text" required></div>
+      <div class="field"><label for="RG">RG:</label><input id="RG" name="RG" type="text" required></div>
+      <div class="field"><label for="Emissor">Órgão Emissor:</label><input id="Emissor" name="Emissor" type="text" required></div>
+      <div class="field"><label for="EstadoCivil">Estado Civil:</label><input id="EstadoCivil" name="EstadoCivil" type="text" required></div>
+      <div class="field"><label for="Profissao">Profissão:</label><input id="Profissao" name="Profissao" type="text" required></div>
+      <div class="field"><label for="Endereco">Endereço:</label><input id="Endereco" name="Endereco" type="text" required></div>
+      <div class="field"><label for="Numero">Número:</label><input id="Numero" name="Numero" type="text" required></div>
+      <div class="field"><label for="Complemento">Complemento:</label><input id="Complemento" name="Complemento" type="text"></div>
+      <div class="field"><label for="Bairro">Bairro:</label><input id="Bairro" name="Bairro" type="text" required></div>
+      <div class="field"><label for="Cidade">Cidade:</label><input id="Cidade" name="Cidade" type="text" required></div>
+      <div class="field"><label for="CEP">CEP:</label><input id="CEP" name="CEP" type="text" required></div>
+      <div class="field"><label for="Quadra">Quadra:</label><input id="Quadra" name="Quadra" type="text"></div>
+      <div class="field"><label for="Lote">Lote:</label><input id="Lote" name="Lote" type="text"></div>
+      <div class="field"><label for="Testemunha">Testemunha 1:</label><input id="Testemunha" name="Testemunha" type="text"></div>
+      <div class="field"><label for="CPFTest">CPF Testemunha 1:</label><input id="CPFTest" name="CPFTest" type="text"></div>
+      <div class="field"><label for="Testemunha2">Testemunha 2:</label><input id="Testemunha2" name="Testemunha2" type="text"></div>
+      <div class="field"><label for="CPFTest2">CPF Testemunha 2:</label><input id="CPFTest2" name="CPFTest2" type="text"></div>
+      <button type="submit">Gerar Contrato e Enviar</button>
     </form>
   </main>
 
