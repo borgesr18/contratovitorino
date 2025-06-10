@@ -77,9 +77,9 @@ def replace_placeholders(replacements):
     bio.seek(0)
     return bio.read()
 
-def send_email(doc_bytes):
-    user = os.environ.get("EMAIL_USER")
-    password = os.environ.get("EMAIL_PASS")
+def send_email(doc_bytes, nome_comprador):
+    msg['Subject'] = f'Contrato de {nome_comprador}'
+            send_email(doc, data.get('Comprador', ''))
     dest = os.environ.get("EMAIL_DEST", "rba1807@gmail.com")
     if not user or not password:
         raise RuntimeError("Credenciais de e-mail não definidas")
