@@ -4,8 +4,20 @@ import os
 from email.message import EmailMessage
 from io import BytesIO
 import smtplib
-from flask import Flask, render_template, request
-from docx import Document
+
+try:
+    from flask import Flask, render_template, request
+except ImportError as exc:
+    raise RuntimeError(
+        "Flask não está instalado. Rode 'pip install -r requirements.txt'"
+    ) from exc
+
+try:
+    from docx import Document
+except ImportError as exc:
+    raise RuntimeError(
+        "python-docx não está instalado. Rode 'pip install -r requirements.txt'"
+    ) from exc
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_PATH = os.path.join(BASE_DIR, "Contrato Vitorino.docx")
@@ -38,7 +50,6 @@ def _replace_in_paragraph(paragraph, replacements):
     if not paragraph.runs:
         return
 
-    # Junta todos os textos para substituir marcadores quebrados em múltiplos runs
     full_text = ''.join(run.text for run in paragraph.runs)
     replaced = False
     for key, val in replacements.items():
@@ -48,7 +59,6 @@ def _replace_in_paragraph(paragraph, replacements):
             replaced = True
 
     if replaced:
-        # Atualiza apenas o primeiro run e limpa os outros
         paragraph.runs[0].text = full_text
         for run in paragraph.runs[1:]:
             run.text = ''
@@ -78,22 +88,26 @@ def replace_placeholders(replacements):
     return bio.read()
 
 def send_email(doc_bytes, nome_comprador):
-    msg['Subject'] = f'Contrato de {nome_comprador}'
-            send_email(doc, data.get('Comprador', ''))
-    dest = os.environ.get("EMAIL_DEST", "rba1807@gmail.com")
+    user = os.environ.get('EMAIL_USER')
+    password = os.environ.get('EMAIL_PASS')
+    dest = os.environ.get('EMAIL_DEST', 'rba1807@gmail.com')
+    
     if not user or not password:
         raise RuntimeError("Credenciais de e-mail não definidas")
+
     msg = EmailMessage()
-    msg["Subject"] = "Contrato Gerado"
-    msg["From"] = user
-    msg["To"] = dest
-    msg.set_content("Segue contrato em anexo.")
+    msg['Subject'] = f'Contrato de {nome_comprador}'
+    msg['From'] = user
+    msg['To'] = dest
+    msg.set_content('Segue contrato em anexo.')
+
     msg.add_attachment(
         doc_bytes,
         maintype="application",
         subtype="vnd.openxmlformats-officedocument.wordprocessingml.document",
         filename="contrato.docx",
     )
+
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
         smtp.login(user, password)
         smtp.send_message(msg)
@@ -106,12 +120,12 @@ def form():
         replacements = {placeholder: data[field] for field, placeholder in FORM_FIELDS.items()}
         try:
             doc = replace_placeholders(replacements)
-            send_email(doc)
-            status = "Contrato enviado com sucesso!"
+            send_email(doc, data.get('Comprador', ''))
+            status = 'Contrato enviado com sucesso!'
         except Exception as exc:
-            print("Erro:", exc)
-            status = "Falha ao enviar contrato."
-    return render_template("form.html", status=status)
+            print('Erro:', exc)
+            status = 'Falha ao enviar contrato.'
+    return render_template('form.html', status=status)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
