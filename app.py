@@ -34,35 +34,33 @@ FORM_FIELDS = {
 app = Flask(__name__)
 
 def _replace_in_paragraph(paragraph, replacements):
-    text = ''.join(run.text for run in paragraph.runs)
+    """Substitui placeholders em um parágrafo preservando a formatação."""
+    if not paragraph.runs:
+        return
+
+    # Junta todos os textos para substituir marcadores quebrados em múltiplos runs
+    full_text = ''.join(run.text for run in paragraph.runs)
+    replaced = False
     for key, val in replacements.items():
         placeholder = f'[{key}]'
-        while placeholder in text:
-            start = text.index(placeholder)
-            end = start + len(placeholder)
-            count = 0
-            start_idx = end_idx = None
-            start_off = end_off = 0
-            for i, run in enumerate(paragraph.runs):
-                run_len = len(run.text)
-                if start_idx is None and start < count + run_len:
-                    start_idx = i
-                    start_off = start - count
-                if end <= count + run_len:
-                    end_idx = i
-                    end_off = end - count
-                    break
-                count += run_len
-            if start_idx is None or end_idx is None:
-                break
-            first_run = paragraph.runs[start_idx]
-            last_run = paragraph.runs[end_idx]
-            prefix = first_run.text[:start_off]
-            suffix = last_run.text[end_off:]
-            first_run.text = prefix + val + suffix
-            for j in range(end_idx, start_idx, -1):
-                paragraph._p.remove(paragraph.runs[j]._r)
-            text = ''.join(run.text for run in paragraph.runs)
+        if placeholder in full_text:
+            full_text = full_text.replace(placeholder, val)
+            replaced = True
+
+    if replaced:
+        # Atualiza apenas o primeiro run e limpa os outros
+        paragraph.runs[0].text = full_text
+        for run in paragraph.runs[1:]:
+            run.text = ''
+
+def _process_table(table, replacements):
+    """Percorre todas as células da tabela e substitui os placeholders."""
+    for row in table.rows:
+        for cell in row.cells:
+            for paragraph in cell.paragraphs:
+                _replace_in_paragraph(paragraph, replacements)
+            for nested in cell.tables:
+                _process_table(nested, replacements)
 
 def replace_placeholders(replacements):
     """Gera um novo DOCX substituindo marcadores do template de forma segura."""
@@ -72,11 +70,10 @@ def replace_placeholders(replacements):
         _replace_in_paragraph(paragraph, replacements)
 
     for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    _replace_in_paragraph(paragraph, replacements)
+        _process_table(table, replacements)
 
+    bio = BytesIO()
+    doc.save(bio)
     bio.seek(0)
     return bio.read()
 
@@ -110,12 +107,6 @@ def form():
         try:
             doc = replace_placeholders(replacements)
             send_email(doc)
-            status = 'Contrato enviado com sucesso!'
-        except Exception as exc:  # pragma: no cover - best effort
-            print('Erro:', exc)
-            status = 'Falha ao enviar contrato.'
-    return render_template('form.html', status=status)
-
             status = "Contrato enviado com sucesso!"
         except Exception as exc:
             print("Erro:", exc)
@@ -125,3 +116,4 @@ def form():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
     app.run(host="0.0.0.0", port=port)
+

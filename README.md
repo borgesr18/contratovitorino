@@ -13,14 +13,8 @@ Este projeto cria um pequeno servidor em Python para gerar contratos a partir do
      ```
 
    - `EMAIL_DEST` – e-mail que receberá o contrato (opcional, padrão `rba1807@gmail.com`).
-2. Instale as dependências (Flask e python-docx):
-2. Instale as dependências:
+
+2. Instale as dependências necessárias:
+
    ```bash
    pip install -r requirements.txt
-   ```
-3. Execute o servidor:
-   ```bash
-   python app.py
-   ```
-4. Acesse `http://localhost:8000` e preencha o formulário. O contrato é gerado e enviado por e-mail como anexo.
-
