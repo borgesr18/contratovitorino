@@ -9,8 +9,8 @@
   <style>
     :root {
       --radius: 10px;
-      --color-bg: #f3f4f6;
-      --color-surface: #fff;
+      --color-bg: #f0f2f5;
+      --color-surface: #ffffff;
       --color-primary: #2563eb;
       --color-primary-hover: #1e54c4;
     }
@@ -25,19 +25,19 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 16px;
+      padding: 20px;
     }
     .card {
       width: 100%;
-      max-width: 500px;
+      max-width: 600px;
       background: var(--color-surface);
       border-radius: var(--radius);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       padding: 32px;
     }
     h1 {
       margin: 0 0 24px;
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 600;
       text-align: center;
       color: #333;
@@ -49,7 +49,7 @@
       display: block;
       margin-bottom: 6px;
       font-weight: 600;
-      color: #555;
+      color: #444;
     }
     .field input {
       width: 100%;
@@ -57,6 +57,7 @@
       border: 1px solid #ccc;
       border-radius: var(--radius);
       font-size: 14px;
+      background: #fafafa;
     }
     .status {
       margin-bottom: 16px;
@@ -79,7 +80,7 @@
     }
     button:hover {
       background: var(--color-primary-hover);
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
     .toast {
       position: fixed;
@@ -127,6 +128,7 @@
     <button type="submit">Gerar contrato</button>
   </form>
 </main>
+
 {% if status %}
 <script>
   document.addEventListener('DOMContentLoaded', function() {
@@ -140,6 +142,46 @@
   });
 </script>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function maskCPF(v) {
+    v = v.replace(/\D/g, '').slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    return v;
+  }
+
+  function maskRG(v) {
+    v = v.replace(/\D/g, '').slice(0, 9);
+    v = v.replace(/(\d{2})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d{1})$/, '$1-$2');
+    return v;
+  }
+
+  function maskCEP(v) {
+    v = v.replace(/\D/g, '').slice(0, 8);
+    v = v.replace(/(\d{5})(\d)/, '$1-$2');
+    return v;
+  }
+
+  function attachMask(id, fn) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', function () {
+        this.value = fn(this.value);
+      });
+    }
+  }
+
+  attachMask('CPF', maskCPF);
+  attachMask('RG', maskRG);
+  attachMask('CEP', maskCEP);
+  attachMask('CPFTest', maskCPF);
+  attachMask('CPFTest2', maskCPF);
+});
+</script>
 </body>
 </html>
-
