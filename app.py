@@ -91,12 +91,12 @@ def send_email(doc_bytes, nome_comprador):
     user = os.environ.get('EMAIL_USER')
     password = os.environ.get('EMAIL_PASS')
     dest = os.environ.get('EMAIL_DEST', 'rba1807@gmail.com')
-    
+
     if not user or not password:
         raise RuntimeError("Credenciais de e-mail não definidas")
 
     msg = EmailMessage()
-    msg['Subject'] = f'Contrato de {nome_comprador}'
+    msg['Subject'] = f'Contrato Gerado – {nome_comprador}'
     msg['From'] = user
     msg['To'] = dest
     msg.set_content('Segue contrato em anexo.')
@@ -130,3 +130,4 @@ def form():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8000"))
     app.run(host="0.0.0.0", port=port)
+
